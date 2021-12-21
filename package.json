@@ -1,6 +1,6 @@
 {
-  "name": "@aldabil/react-scheduler",
-  "version": "2.3.1",
+  "name": "@conpago/react-scheduler",
+  "version": "1.0.4",
   "description": "React scheduler component based on Material-UI & date-fns",
   "main": "./dist/Scheduler.js",
   "//types": "./dist/index.d.ts",
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/aldabil21/react-scheduler.git"
+    "url": "https://github.com/conpagoaus/react-scheduler.git"
   },
   "keywords": [
     "react",
@@ -26,9 +26,9 @@
   ],
   "author": "Aldabil",
   "license": "MIT",
-  "//homepage": "https://github.com/aldabil21/react-scheduler#readme",
+  "//homepage": "https://github.com/conpagoaus/react-scheduler#readme",
   "bugs": {
-    "url": "https://github.com/aldabil21/react-scheduler/issues"
+    "url": "https://github.com/conpagoaus/react-scheduler/issues"
   },
   "devDependencies": {
     "@emotion/react": "^11.7.1",
