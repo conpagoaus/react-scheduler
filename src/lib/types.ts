@@ -174,6 +174,7 @@ export interface SchedulerProps {
    * @default "default"
    */
   resourceViewMode: "default" | "tabs";
+  selectedResource?: DefaultRecourse["assignee"];
   /**Direction of table */
   direction: "rtl" | "ltr";
   /**Edito dialog maxWith
