@@ -15,16 +15,17 @@ interface ResourceHeaderProps {
 const ResourceHeader = ({ resource }: ResourceHeaderProps) => {
   const { recourseHeaderComponent, resourceFields, resources, direction } =
     useAppState();
+
   const { width } = useWindowResize();
+
+  if (recourseHeaderComponent instanceof Function) {
+    return recourseHeaderComponent(resource);
+  }
 
   const text = resource[resourceFields.textField];
   const subtext = resource[resourceFields.subTextField || ""];
   const avatar = resource[resourceFields.avatarField || ""];
   const color = resource[resourceFields.colorField || ""];
-
-  if (recourseHeaderComponent instanceof Function) {
-    return recourseHeaderComponent(resource);
-  }
 
   return (
     <ListItem
