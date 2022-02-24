@@ -13,9 +13,13 @@ interface ResourceHeaderProps {
   resource: DefaultRecourse;
 }
 const ResourceHeader = ({ resource }: ResourceHeaderProps) => {
-  const { recourseHeaderComponent, resourceFields, resources, direction } =
-    useAppState();
-
+  const {
+    recourseHeaderComponent,
+    resourceFields,
+    resources,
+    direction,
+    resourceViewMode,
+  } = useAppState();
   const { width } = useWindowResize();
 
   if (recourseHeaderComponent instanceof Function) {
@@ -27,12 +31,23 @@ const ResourceHeader = ({ resource }: ResourceHeaderProps) => {
   const avatar = resource[resourceFields.avatarField || ""];
   const color = resource[resourceFields.colorField || ""];
 
+  const headerBorders =
+    resourceViewMode === "tabs"
+      ? {}
+      : {
+          borderColor: "#eee",
+          borderStyle: "solid",
+          borderWidth: "1px 1px 0 1px",
+        };
+
   return (
     <ListItem
-      style={{
+      sx={{
         padding: "2px 10px",
         textAlign: direction === "rtl" ? "right" : "left",
+        ...headerBorders,
       }}
+      component="span"
     >
       <ListItemAvatar>
         <Avatar style={{ background: color }} alt={text} src={avatar} />
