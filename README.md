@@ -1,7 +1,8 @@
 # React Scheduler Component
 
-[![npm package](https://img.shields.io/npm/v/@aldabil/react-scheduler/latest.svg)](https://www.npmjs.com/package/@aldabil/react-scheduler)
-[![Twitter URL](https://img.shields.io/twitter/url?label=%40aldabil&style=social&url=https%3A%2F%2Ftwitter.com%2Fintent%2Ffollow%3Fscreen_name%3Daldabil21)](https://twitter.com/intent/follow?screen_name=aldabil21)
+[![npm package](https://img.shields.io/npm/v/@conpago/react-scheduler/latest.svg)](https://www.npmjs.com/package/@conpago/react-scheduler)
+
+A fork of [@aldabil/react-scheduler](https://github.com/aldabil/react-scheduler) to suit our needs more specifically.
 
 ## Installation
 
