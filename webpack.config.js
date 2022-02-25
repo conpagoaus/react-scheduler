@@ -1,7 +1,5 @@
 const path = require("path");
 const nodeExternals = require("webpack-node-externals");
-// const BundleAnalyzerPlugin =
-//   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 module.exports = {
   mode: "production",
