@@ -1,18 +1,19 @@
 # React Scheduler Component
 
-[![npm package](https://img.shields.io/npm/v/@aldabil/react-scheduler/latest.svg)](https://www.npmjs.com/package/@aldabil/react-scheduler)
-[![Twitter URL](https://img.shields.io/twitter/url?label=%40aldabil&style=social&url=https%3A%2F%2Ftwitter.com%2Fintent%2Ffollow%3Fscreen_name%3Daldabil21)](https://twitter.com/intent/follow?screen_name=aldabil21)
+[![npm package](https://img.shields.io/npm/v/@conpago/react-scheduler/latest.svg)](https://www.npmjs.com/package/@conpago/react-scheduler)
+
+A fork of [@aldabil/react-scheduler](https://github.com/aldabil/react-scheduler) to suit our needs more specifically.
 
 ## Installation
 
 ```jsx
-npm i @aldabil/react-scheduler
+npm i @conpago/react-scheduler
 ```
 
 ## Usage
 
 ```jsx
-import { Scheduler } from "@aldabil/react-scheduler";
+import { Scheduler } from "@conpago/react-scheduler";
 ```
 
 ## Example
@@ -59,6 +60,7 @@ import { Scheduler } from "@aldabil/react-scheduler";
 | resourceFields          | Object. Map the resources correct fields. <br>_Example_: <pre>{<br> idField: "admin_id", <br>textField: "title", <br>subTextField: "mobile", <br>avatarField: "title", <br>colorField: "background",<br> }</pre>                                                                                                                                                                                                          |
 | recourseHeaderComponent | Function(resource). Override header component of resource                                                                                                                                                                                                                                                                                                                                                                 |
 | resourceViewMode        | Display resources mode. <br>_Options_: "default", "tabs"                                                                                                                                                                                                                                                                                                                                                                  |
+| selectedResource        | Initially selected resource                                                                                                                                                                                                                                                                                                                                                                                               |
 | direction               | string. Table direction. "rtl", "ltr"                                                                                                                                                                                                                                                                                                                                                                                     |
 | dialogMaxWidth          | Edito dialog maxWith. Ex: "lg", "md", "sm"... _Default_:"md"                                                                                                                                                                                                                                                                                                                                                              |
 | locale                  | Locale of date-fns. _Default_:enUS                                                                                                                                                                                                                                                                                                                                                                                        |
