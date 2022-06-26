@@ -41,6 +41,7 @@ const Month = () => {
     resources,
     resourceFields,
     fields,
+    locale
   } = useAppState();
 
   const { weekStartOn, weekDays, startHour, endHour, cellRenderer } = month!;
@@ -101,10 +102,10 @@ const Month = () => {
       const cells = weekDays.map((d) => {
         const today = addDays(startDay, d);
         const start = new Date(
-          `${format(setHours(today, startHour), "yyyy MM dd hh:mm a")}`
+          `${format(setHours(today, startHour), "yyyy/MM/dd hh:mm a")}`
         );
         const end = new Date(
-          `${format(setHours(today, endHour), "yyyy MM dd hh:mm a")}`
+          `${format(setHours(today, endHour), "yyyy/MM/dd hh:mm a")}`
         );
         const field = resourceFields.idField;
         return (
@@ -190,7 +191,7 @@ const Month = () => {
         {daysList.map((date, i) => (
           <span key={i} className="rs__cell rs__header">
             <Typography align="center" variant="body2">
-              {format(date, "EE")}
+              {format(date, "EE", { locale: locale })}
             </Typography>
           </span>
         ))}
