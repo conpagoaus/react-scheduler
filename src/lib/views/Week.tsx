@@ -202,7 +202,7 @@ const Week = () => {
             }`}
             style={{ height: headerHeight }}
           >
-            <TodayTypo date={date} onClick={handleGotoDay} />
+            <TodayTypo date={date} onClick={handleGotoDay} locale={locale}/>
             {renderMultiDayEvents(recousedEvents, date)}
           </span>
         ))}
@@ -220,10 +220,10 @@ const Week = () => {
             </span>
             {daysList.map((date, ii) => {
               const start = new Date(
-                `${format(date, "yyyy MM dd")} ${format(h, "hh:mm a")}`
+                `${format(date, "yyyy/MM/dd")} ${format(h, "hh:mm a")}`
               );
               const end = new Date(
-                `${format(date, "yyyy MM dd")} ${format(
+                `${format(date, "yyyy/MM/dd")} ${format(
                   addMinutes(h, step),
                   "hh:mm a"
                 )}`

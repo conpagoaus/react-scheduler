@@ -59,6 +59,7 @@ const Day = () => {
     direction,
     locale,
   } = useAppState();
+
   const { startHour, endHour, step, cellRenderer } = day!;
   const START_TIME = setMinutes(setHours(selectedDate, startHour), 0);
   const END_TIME = setMinutes(setHours(selectedDate, endHour), 0);
@@ -169,17 +170,17 @@ const Day = () => {
           }`}
           style={{ height: headerHeight }}
         >
-          <TodayTypo date={selectedDate} />
+          <TodayTypo date={selectedDate} locale={locale} />
           {renderMultiDayEvents(recousedEvents)}
         </span>
 
         {/* Body */}
         {hours.map((h, i) => {
           const start = new Date(
-            `${format(selectedDate, "yyyy MM dd")} ${format(h, "hh:mm a")}`
+            `${format(selectedDate, "yyyy/MM/dd")} ${format(h, "hh:mm a")}`
           );
           const end = new Date(
-            `${format(selectedDate, "yyyy MM dd")} ${format(
+            `${format(selectedDate, "yyyy/MM/dd")} ${format(
               addMinutes(h, step),
               "hh:mm a"
             )}`
@@ -211,7 +212,7 @@ const Day = () => {
                         !differenceInDays(e.end, e.start) &&
                         isSameDay(selectedDate, e.start)
                     )}
-                    today={selectedDate}
+                    today={START_TIME}
                     minuteHeight={MINUTE_HEIGHT}
                     startHour={startHour}
                     step={step}
