@@ -173,6 +173,7 @@ const EventItem = ({
             <div style={{ display: "inherit" }}>
               <IconButton
                 size="small"
+                disabled={event?.readOnly}
                 style={{ color: theme.palette.primary.contrastText }}
                 onClick={() => {
                   triggerViewer();
@@ -184,6 +185,7 @@ const EventItem = ({
               {!deleteConfirm && (
                 <IconButton
                   size="small"
+                  disabled={event?.readOnly}
                   style={{ color: theme.palette.primary.contrastText }}
                   onClick={() => setDeleteConfirm(true)}
                 >
