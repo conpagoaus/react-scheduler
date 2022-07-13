@@ -177,7 +177,9 @@ const EventItem = ({
             <div style={{ display: "inherit" }}>
               <Tooltip
                 title={
-                  !(typeof onDelete === "function") ? "Edit not supported" : ""
+                  !(typeof onDelete === "function")
+                    ? "Editing not supported"
+                    : ""
                 }
               >
                 <Box>
@@ -198,7 +200,7 @@ const EventItem = ({
                 <Tooltip
                   title={
                     !(typeof onDelete === "function")
-                      ? "Delete not supported"
+                      ? "Deleting not supported"
                       : ""
                   }
                 >
