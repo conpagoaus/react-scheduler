@@ -44,6 +44,9 @@ interface CalendarEvent {
   title: string;
   start: Date;
   end: Date;
+  disabled?: boolean;
+  readOnly?: boolean;
+  disabledHelperText?: string;
   // description?: string;
 }
 

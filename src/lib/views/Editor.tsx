@@ -97,7 +97,7 @@ const Editor = () => {
   const [state, setState] = useState(
     initialState(fields, selectedEvent || selectedRange)
   );
-  const [touched, setTouched] = useState(false);
+  const [touched, setTouched] = useState<boolean>(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -138,7 +138,7 @@ const Editor = () => {
       // Specify action
       const action: EventActions = selectedEvent?.event_id ? "edit" : "create";
       // Trigger custom/remote when provided
-      if (onConfirm) {
+      if (typeof onConfirm === "function") {
         body = await onConfirm(body, action);
       } else {
         // Create/Edit local data
@@ -154,6 +154,7 @@ const Editor = () => {
       triggerLoading(false);
     }
   };
+
   const renderInputs = (key: string) => {
     const stateItem = state[key];
     switch (stateItem.type) {
