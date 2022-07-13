@@ -170,50 +170,52 @@ const EventItem = ({
                 <ClearRoundedIcon color="disabled" />
               </IconButton>
             </div>
-            <div style={{ display: "inherit" }}>
-              <IconButton
-                size="small"
-                style={{ color: theme.palette.primary.contrastText }}
-                onClick={() => {
-                  triggerViewer();
-                  triggerDialog(true, event);
-                }}
-              >
-                <EditRoundedIcon />
-              </IconButton>
-              {!deleteConfirm && (
+            {!event?.read_only && (
+              <div style={{ display: "inherit" }}>
                 <IconButton
                   size="small"
                   style={{ color: theme.palette.primary.contrastText }}
-                  onClick={() => setDeleteConfirm(true)}
+                  onClick={() => {
+                    triggerViewer();
+                    triggerDialog(true, event);
+                  }}
                 >
-                  <DeleteRoundedIcon />
+                  <EditRoundedIcon />
                 </IconButton>
-              )}
-              <Slide
-                in={deleteConfirm}
-                direction={direction === "rtl" ? "right" : "left"}
-                mountOnEnter
-                unmountOnExit
-              >
-                <div>
-                  <Button
-                    style={{ color: theme.palette.error.main }}
+                {!deleteConfirm && (
+                  <IconButton
                     size="small"
-                    onClick={handleConfirmDelete}
+                    style={{ color: theme.palette.primary.contrastText }}
+                    onClick={() => setDeleteConfirm(true)}
                   >
-                    DELETE
-                  </Button>
-                  <Button
-                    style={{ color: theme.palette.action.disabled }}
-                    size="small"
-                    onClick={() => setDeleteConfirm(false)}
-                  >
-                    CANCEL
-                  </Button>
-                </div>
-              </Slide>
-            </div>
+                    <DeleteRoundedIcon />
+                  </IconButton>
+                )}
+                <Slide
+                  in={deleteConfirm}
+                  direction={direction === "rtl" ? "right" : "left"}
+                  mountOnEnter
+                  unmountOnExit
+                >
+                  <div>
+                    <Button
+                      style={{ color: theme.palette.error.main }}
+                      size="small"
+                      onClick={handleConfirmDelete}
+                    >
+                      DELETE
+                    </Button>
+                    <Button
+                      style={{ color: theme.palette.action.disabled }}
+                      size="small"
+                      onClick={() => setDeleteConfirm(false)}
+                    >
+                      CANCEL
+                    </Button>
+                  </div>
+                </Slide>
+              </div>
+            )}
           </div>
           {viewerTitleComponent instanceof Function ? (
             viewerTitleComponent(event)
