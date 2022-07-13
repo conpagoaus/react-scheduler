@@ -286,9 +286,7 @@ const EventItem = ({
 
   return (
     <Fragment>
-      <Tooltip
-        title={event.disabled ? "Viewing this event is not allowed." : ""}
-      >
+      <Tooltip title={event?.disabledHelperText || ""}>
         <Paper
           style={{
             width: "100%",
