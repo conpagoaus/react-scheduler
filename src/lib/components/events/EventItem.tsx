@@ -177,8 +177,8 @@ const EventItem = ({
             <div style={{ display: "inherit" }}>
               <Tooltip
                 title={
-                  !(typeof onDelete === "function")
-                    ? "Editing not supported"
+                  !(typeof onConfirm === "function")
+                    ? "Editing not supported in this version."
                     : ""
                 }
               >
@@ -200,7 +200,7 @@ const EventItem = ({
                 <Tooltip
                   title={
                     !(typeof onDelete === "function")
-                      ? "Deleting not supported"
+                      ? "Deleting not supported in this version."
                       : ""
                   }
                 >
@@ -286,61 +286,66 @@ const EventItem = ({
 
   return (
     <Fragment>
-      <Paper
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "block",
-          background: event.disabled
-            ? "#d0d0d0"
-            : event.color || theme.palette.primary.main,
-          color: event.disabled
-            ? "#808080"
-            : theme.palette.primary.contrastText,
-          cursor: event.disabled ? "not-allowed" : "pointer",
-          overflow: "hidden",
-        }}
+      <Tooltip
+        title={event.disabled ? "Viewing this event is not allowed." : ""}
       >
-        <ButtonBase
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            triggerViewer(e.currentTarget);
-          }}
-          disabled={event.disabled}
+        <Paper
           style={{
             width: "100%",
             height: "100%",
             display: "block",
+            background: event.disabled
+              ? "#d0d0d0"
+              : event.color || theme.palette.primary.main,
+            color: event.disabled
+              ? "#808080"
+              : theme.palette.primary.contrastText,
+            cursor: event.disabled ? "not-allowed" : "pointer",
+            overflow: "hidden",
           }}
         >
-          <div
+          <ButtonBase
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              triggerViewer(e.currentTarget);
+            }}
+            disabled={event.disabled}
             style={{
+              width: "100%",
               height: "100%",
-            }}
-            draggable
-            onDragStart={(e) => {
-              e.stopPropagation();
-              e.dataTransfer.setData("text/plain", `${event.event_id}`);
-              e.currentTarget.style.backgroundColor = theme.palette.error.main;
-            }}
-            onDragEnd={(e) => {
-              e.currentTarget.style.backgroundColor =
-                event.color || theme.palette.primary.main;
-            }}
-            onDragOver={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
-            onDragEnter={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
+              display: "block",
             }}
           >
-            {item}
-          </div>
-        </ButtonBase>
-      </Paper>
+            <div
+              style={{
+                height: "100%",
+              }}
+              draggable
+              onDragStart={(e) => {
+                e.stopPropagation();
+                e.dataTransfer.setData("text/plain", `${event.event_id}`);
+                e.currentTarget.style.backgroundColor =
+                  theme.palette.error.main;
+              }}
+              onDragEnd={(e) => {
+                e.currentTarget.style.backgroundColor =
+                  event.color || theme.palette.primary.main;
+              }}
+              onDragOver={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              onDragEnter={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+            >
+              {item}
+            </div>
+          </ButtonBase>
+        </Paper>
+      </Tooltip>
 
       {/* Viewer */}
       <Popover
