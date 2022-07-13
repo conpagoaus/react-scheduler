@@ -11,7 +11,6 @@ import {
   Tooltip,
   Box,
 } from "@mui/material";
-
 import { format } from "date-fns";
 import { ProcessedEvent } from "../../types";
 import { useAppState } from "../../hooks/useAppState";
@@ -55,7 +54,7 @@ const EventItem = ({
     viewerTitleComponent,
   } = useAppState();
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<boolean>(false);
   const theme = useTheme();
 
   const NextArrow =
@@ -75,7 +74,7 @@ const EventItem = ({
       triggerLoading(true);
       let deletedId = event.event_id;
       // Trigger custom/remote when provided
-      if (onDelete) {
+      if (typeof onDelete === "function") {
         const remoteId = await onDelete(deletedId);
         if (remoteId) {
           deletedId = remoteId;
