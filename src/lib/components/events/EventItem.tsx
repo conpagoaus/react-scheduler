@@ -8,7 +8,10 @@ import {
   Button,
   Slide,
   Paper,
+  Tooltip,
+  Box,
 } from "@mui/material";
+
 import { format } from "date-fns";
 import { ProcessedEvent } from "../../types";
 import { useAppState } from "../../hooks/useAppState";
@@ -39,6 +42,7 @@ const EventItem = ({
   const {
     triggerDialog,
     onDelete,
+    onConfirm,
     events,
     handleState,
     triggerLoading,
@@ -171,26 +175,44 @@ const EventItem = ({
               </IconButton>
             </div>
             <div style={{ display: "inherit" }}>
-              <IconButton
-                size="small"
-                disabled={event?.readOnly}
-                style={{ color: theme.palette.primary.contrastText }}
-                onClick={() => {
-                  triggerViewer();
-                  triggerDialog(true, event);
-                }}
+              <Tooltip
+                title={
+                  !(typeof onDelete === "function") ? "Edit not supported" : ""
+                }
               >
-                <EditRoundedIcon />
-              </IconButton>
+                <Box>
+                  <IconButton
+                    size="small"
+                    disabled={!(typeof onConfirm === "function")}
+                    style={{ color: theme.palette.primary.contrastText }}
+                    onClick={() => {
+                      triggerViewer();
+                      triggerDialog(true, event);
+                    }}
+                  >
+                    <EditRoundedIcon />
+                  </IconButton>
+                </Box>
+              </Tooltip>
               {!deleteConfirm && (
-                <IconButton
-                  size="small"
-                  disabled={event?.readOnly}
-                  style={{ color: theme.palette.primary.contrastText }}
-                  onClick={() => setDeleteConfirm(true)}
+                <Tooltip
+                  title={
+                    !(typeof onDelete === "function")
+                      ? "Delete not supported"
+                      : ""
+                  }
                 >
-                  <DeleteRoundedIcon />
-                </IconButton>
+                  <Box>
+                    <IconButton
+                      disabled={!(typeof onDelete === "function")}
+                      size="small"
+                      style={{ color: theme.palette.primary.contrastText }}
+                      onClick={() => setDeleteConfirm(true)}
+                    >
+                      <DeleteRoundedIcon />
+                    </IconButton>
+                  </Box>
+                </Tooltip>
               )}
               <Slide
                 in={deleteConfirm}
@@ -201,14 +223,12 @@ const EventItem = ({
                 <div>
                   <Button
                     style={{ color: theme.palette.error.main }}
-                    disabled={event?.readOnly}
                     size="small"
                     onClick={handleConfirmDelete}
                   >
                     DELETE
                   </Button>
                   <Button
-                    disabled={event?.readOnly}
                     style={{ color: theme.palette.action.disabled }}
                     size="small"
                     onClick={() => setDeleteConfirm(false)}
