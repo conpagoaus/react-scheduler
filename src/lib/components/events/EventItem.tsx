@@ -8,6 +8,7 @@ import {
   Button,
   Slide,
   Paper,
+  Tooltip,
 } from "@mui/material";
 import { format } from "date-fns";
 import { ProcessedEvent } from "../../types";
@@ -39,6 +40,7 @@ const EventItem = ({
   const {
     triggerDialog,
     onDelete,
+    onConfirm,
     events,
     handleState,
     triggerLoading,
@@ -50,8 +52,9 @@ const EventItem = ({
     locale,
     viewerTitleComponent,
   } = useAppState();
+
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<boolean>(false);
   const theme = useTheme();
 
   const NextArrow =
@@ -71,7 +74,7 @@ const EventItem = ({
       triggerLoading(true);
       let deletedId = event.event_id;
       // Trigger custom/remote when provided
-      if (onDelete) {
+      if (typeof onDelete === "function") {
         const remoteId = await onDelete(deletedId);
         if (remoteId) {
           deletedId = remoteId;
@@ -173,6 +176,7 @@ const EventItem = ({
             <div style={{ display: "inherit" }}>
               <IconButton
                 size="small"
+                disabled={!(typeof onConfirm === "function") || event?.readOnly}
                 style={{ color: theme.palette.primary.contrastText }}
                 onClick={() => {
                   triggerViewer();
@@ -183,6 +187,9 @@ const EventItem = ({
               </IconButton>
               {!deleteConfirm && (
                 <IconButton
+                  disabled={
+                    !(typeof onDelete === "function") || event?.readOnly
+                  }
                   size="small"
                   style={{ color: theme.palette.primary.contrastText }}
                   onClick={() => setDeleteConfirm(true)}
@@ -260,61 +267,64 @@ const EventItem = ({
 
   return (
     <Fragment>
-      <Paper
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "block",
-          background: event.disabled
-            ? "#d0d0d0"
-            : event.color || theme.palette.primary.main,
-          color: event.disabled
-            ? "#808080"
-            : theme.palette.primary.contrastText,
-          cursor: event.disabled ? "not-allowed" : "pointer",
-          overflow: "hidden",
-        }}
-      >
-        <ButtonBase
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            triggerViewer(e.currentTarget);
-          }}
-          disabled={event.disabled}
+      <Tooltip title={event?.disabledHelperText || ""}>
+        <Paper
           style={{
             width: "100%",
             height: "100%",
             display: "block",
+            background: event.disabled
+              ? "#d0d0d0"
+              : event.color || theme.palette.primary.main,
+            color: event.disabled
+              ? "#808080"
+              : theme.palette.primary.contrastText,
+            cursor: event.disabled ? "not-allowed" : "pointer",
+            overflow: "hidden",
           }}
         >
-          <div
+          <ButtonBase
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              triggerViewer(e.currentTarget);
+            }}
+            disabled={event.disabled}
             style={{
+              width: "100%",
               height: "100%",
-            }}
-            draggable
-            onDragStart={(e) => {
-              e.stopPropagation();
-              e.dataTransfer.setData("text/plain", `${event.event_id}`);
-              e.currentTarget.style.backgroundColor = theme.palette.error.main;
-            }}
-            onDragEnd={(e) => {
-              e.currentTarget.style.backgroundColor =
-                event.color || theme.palette.primary.main;
-            }}
-            onDragOver={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
-            onDragEnter={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
+              display: "block",
             }}
           >
-            {item}
-          </div>
-        </ButtonBase>
-      </Paper>
+            <div
+              style={{
+                height: "100%",
+              }}
+              draggable
+              onDragStart={(e) => {
+                e.stopPropagation();
+                e.dataTransfer.setData("text/plain", `${event.event_id}`);
+                e.currentTarget.style.backgroundColor =
+                  theme.palette.error.main;
+              }}
+              onDragEnd={(e) => {
+                e.currentTarget.style.backgroundColor =
+                  event.color || theme.palette.primary.main;
+              }}
+              onDragOver={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              onDragEnter={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+            >
+              {item}
+            </div>
+          </ButtonBase>
+        </Paper>
+      </Tooltip>
 
       {/* Viewer */}
       <Popover
