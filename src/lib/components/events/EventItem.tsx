@@ -199,14 +199,14 @@ const EventItem = ({
                 <div>
                   <Button
                     style={{ color: theme.palette.error.main }}
-                    disabled={event?.read_only}
+                    disabled={event?.readOnly}
                     size="small"
                     onClick={handleConfirmDelete}
                   >
                     DELETE
                   </Button>
                   <Button
-                    disabled={event?.read_only}
+                    disabled={event?.readOnly}
                     style={{ color: theme.palette.action.disabled }}
                     size="small"
                     onClick={() => setDeleteConfirm(false)}
