@@ -53,6 +53,7 @@ const EventItem = ({
     locale,
     viewerTitleComponent,
   } = useAppState();
+
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<boolean>(false);
   const theme = useTheme();
@@ -153,6 +154,21 @@ const EventItem = ({
         : res[idKey] === event[idKey]
     );
 
+    const getToolTipText = (type: string) => {
+      if (event?.readOnly) return "This event is read only.";
+
+      if (type === "edit") {
+        return !(typeof onConfirm === "function")
+          ? "Editing not supported in this version."
+          : "";
+      } else if (type === "delete") {
+        return !(typeof onDelete === "function")
+          ? "Deleting not supported in this version."
+          : "";
+      }
+      return "";
+    };
+
     return (
       <PopperInner>
         <div
@@ -174,17 +190,13 @@ const EventItem = ({
               </IconButton>
             </div>
             <div style={{ display: "inherit" }}>
-              <Tooltip
-                title={
-                  !(typeof onConfirm === "function")
-                    ? "Editing not supported in this version."
-                    : ""
-                }
-              >
+              <Tooltip title={getToolTipText("edit")}>
                 <Box>
                   <IconButton
                     size="small"
-                    disabled={!(typeof onConfirm === "function")}
+                    disabled={
+                      !(typeof onConfirm === "function") || event?.readOnly
+                    }
                     style={{ color: theme.palette.primary.contrastText }}
                     onClick={() => {
                       triggerViewer();
@@ -196,16 +208,12 @@ const EventItem = ({
                 </Box>
               </Tooltip>
               {!deleteConfirm && (
-                <Tooltip
-                  title={
-                    !(typeof onDelete === "function")
-                      ? "Deleting not supported in this version."
-                      : ""
-                  }
-                >
+                <Tooltip title={getToolTipText("delete")}>
                   <Box>
                     <IconButton
-                      disabled={!(typeof onDelete === "function")}
+                      disabled={
+                        !(typeof onDelete === "function") || event?.readOnly
+                      }
                       size="small"
                       style={{ color: theme.palette.primary.contrastText }}
                       onClick={() => setDeleteConfirm(true)}
