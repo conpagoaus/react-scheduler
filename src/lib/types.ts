@@ -46,6 +46,7 @@ interface CalendarEvent {
   end: Date;
   disabled?: boolean;
   readOnly?: boolean;
+  disabledHelperText?: string;
   // description?: string;
 }
 
