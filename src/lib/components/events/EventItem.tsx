@@ -200,7 +200,7 @@ const EventItem = ({
                   disabled={isDeleteDisabled}
                   size="small"
                   style={{
-                    color: !isDeleteDisabled
+                    color: isDeleteDisabled
                       ? "#808080"
                       : theme.palette.primary.contrastText,
                   }}
