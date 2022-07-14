@@ -153,6 +153,12 @@ const EventItem = ({
         : res[idKey] === event[idKey]
     );
 
+    const isEditDisabled =
+      !(typeof onConfirm === "function") || event?.readOnly;
+
+    const isDeleteDisabled =
+      !(typeof onDelete === "function") || event?.readOnly;
+
     return (
       <PopperInner>
         <div
@@ -176,8 +182,12 @@ const EventItem = ({
             <div style={{ display: "inherit" }}>
               <IconButton
                 size="small"
-                disabled={!(typeof onConfirm === "function") || event?.readOnly}
-                style={{ color: theme.palette.primary.contrastText }}
+                disabled={isEditDisabled}
+                style={{
+                  color: isEditDisabled
+                    ? "#808080"
+                    : theme.palette.primary.contrastText,
+                }}
                 onClick={() => {
                   triggerViewer();
                   triggerDialog(true, event);
@@ -187,11 +197,13 @@ const EventItem = ({
               </IconButton>
               {!deleteConfirm && (
                 <IconButton
-                  disabled={
-                    !(typeof onDelete === "function") || event?.readOnly
-                  }
+                  disabled={isDeleteDisabled}
                   size="small"
-                  style={{ color: theme.palette.primary.contrastText }}
+                  style={{
+                    color: !isDeleteDisabled
+                      ? "#808080"
+                      : theme.palette.primary.contrastText,
+                  }}
                   onClick={() => setDeleteConfirm(true)}
                 >
                   <DeleteRoundedIcon />
