@@ -46,6 +46,7 @@ const AppState = ({ initial, children }: AppProps) => {
     direction,
     loading,
     onEventDrop,
+    selectedDate,
   } = initial;
   const [state, dispatch] = useReducer(stateReducer, initialState(initial));
 
@@ -63,6 +64,7 @@ const AppState = ({ initial, children }: AppProps) => {
     if (state.mounted) {
       updateProps({
         events,
+        selectedDate,
         resources,
         resourceViewMode,
         month,
@@ -80,6 +82,7 @@ const AppState = ({ initial, children }: AppProps) => {
     //eslint-disable-next-line
   }, [
     events,
+    selectedDate,
     resources,
     resourceViewMode,
     month,
