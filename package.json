@@ -5,7 +5,7 @@
   "main": "./dist/Scheduler.js",
   "//types": "./dist/index.d.ts",
   "files": [
-    "*"
+    "/dist/**/*"
   ],
   "scripts": {
     "start": "react-scripts start",
