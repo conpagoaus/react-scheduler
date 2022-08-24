@@ -5,11 +5,14 @@
   "main": "./dist/Scheduler.js",
   "//types": "./dist/index.d.ts",
   "files": [
-    "/dist/**/*"
+    "*"
   ],
   "scripts": {
     "start": "react-scripts start",
-    "build": "webpack"
+    "webpack": "webpack",
+    "pack": "rm -rf dist && npm run webpack && cp package.json ./dist",
+    "local:pack": "npm run pack && cd dist && npm pack && mv *.tgz ../",
+    "publish": "npm run pack && cd dist && npm publish"
   },
   "repository": {
     "type": "git",
@@ -31,8 +34,8 @@
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@mui/icons-material": "^5.2.5",
-    "@mui/lab": "^5.0.0-alpha.52",
     "@mui/material": "^5.2.5",
+    "@mui/x-date-pickers": "^5.0.0-beta.5",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
@@ -53,7 +56,7 @@
   },
   "peerDependencies": {
     "@mui/icons-material": ">=5.0.0",
-    "@mui/lab": ">=5.0.0-alpha",
+    "@mui/x-date-pickers": ">=5.0.0-alpha",
     "@mui/material": ">=5.0.0",
     "date-fns": ">=2.2"
   },
