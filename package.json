@@ -9,10 +9,7 @@
   ],
   "scripts": {
     "start": "react-scripts start",
-    "build": "webpack",
-    "pack": "rm -rf dist && npm run webpack && cp package.json ./dist",
-    "local:pack": "npm run pack && cd dist && npm pack && mv *.tgz ../",
-    "publish": "npm run pack && cd dist && npm publish"
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
