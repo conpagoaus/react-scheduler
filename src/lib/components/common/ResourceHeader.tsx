@@ -39,6 +39,7 @@ const ResourceHeader = ({ resource }: ResourceHeaderProps) => {
           borderStyle: "solid",
           borderWidth: "1px 1px 0 1px",
         };
+
   return (
     <ListItem
       sx={{
