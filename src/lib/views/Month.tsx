@@ -41,7 +41,7 @@ const Month = () => {
     resources,
     resourceFields,
     fields,
-    locale
+    locale,
   } = useAppState();
 
   const { weekStartOn, weekDays, startHour, endHour, cellRenderer } = month!;
@@ -144,12 +144,8 @@ const Month = () => {
                   height: 27,
                   position: "absolute",
                   top: 0,
-                  background: isToday(today)
-                    ? theme.palette.secondary.main
-                    : "transparent",
-                  color: isToday(today)
-                    ? theme.palette.secondary.contrastText
-                    : "",
+                  background: isToday(today) ? "#3182CE" : "transparent",
+                  color: isToday(today) ? theme.palette.secondary.dark : "",
                   marginBottom: 2,
                 }}
               >
