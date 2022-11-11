@@ -77,6 +77,7 @@ export const defaultProps = {
   direction: "ltr",
   dialogMaxWidth: "md",
   locale: enUS,
+  extraAction: undefined,
 } as SchedulerProps;
 
 const StateContext = createContext<stateContext>({
