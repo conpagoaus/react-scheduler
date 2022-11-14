@@ -185,7 +185,7 @@ const EventItem = ({
                 disabled={isEditDisabled}
                 style={{
                   color: isEditDisabled
-                    ? "#808080"
+                    ? "#a6a4a4"
                     : theme.palette.primary.contrastText,
                 }}
                 onClick={() => {
@@ -201,7 +201,7 @@ const EventItem = ({
                   size="small"
                   style={{
                     color: isDeleteDisabled
-                      ? "#808080"
+                      ? "#a6a4a4"
                       : theme.palette.primary.contrastText,
                   }}
                   onClick={() => setDeleteConfirm(true)}
@@ -289,7 +289,7 @@ const EventItem = ({
               ? "#d0d0d0"
               : event.color || theme.palette.primary.main,
             color: event.disabled
-              ? "#808080"
+              ? "#a6a4a4"
               : theme.palette.primary.contrastText,
             cursor: event.disabled ? "not-allowed" : "pointer",
             overflow: "hidden",

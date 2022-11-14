@@ -61,9 +61,18 @@ const Navigation = () => {
     >
       {Boolean(extraAction) ? extraAction : renderDateSelector()}
       <div style={{ display: "flex", alignItems: "center" }}>
-        <Button onClick={() => handleState(new Date(), "selectedDate")}>
-          Today
-        </Button>
+        <div
+          style={{
+            marginRight: 32,
+          }}
+        >
+          <Button
+            color="primary"
+            onClick={() => handleState(new Date(), "selectedDate")}
+          >
+            Today
+          </Button>
+        </div>
         {Boolean(extraAction) && renderDateSelector()}
         {views.length > 1 &&
           (isDesktop ? (
