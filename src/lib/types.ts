@@ -6,6 +6,7 @@ import { DialogProps, GridSize } from "@mui/material";
 import { Locale } from "date-fns";
 import { SelectOption } from "./components/inputs/SelectInput";
 import { View } from "./components/nav/Navigation";
+import { ReactNode } from "react";
 
 export type DayHours =
   | 0
@@ -196,5 +197,7 @@ export interface SchedulerProps {
     updatedEvent: ProcessedEvent,
     originalEvent: ProcessedEvent
   ): Promise<ProcessedEvent | void>;
+  /** React node to display in the header */
+  extraAction?: ReactNode;
 }
 export interface Scheduler extends Partial<SchedulerProps> {}
