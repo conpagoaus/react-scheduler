@@ -42,7 +42,7 @@ const Month = () => {
     resourceFields,
     fields,
     locale,
-    hourFormat,,
+    hourFormat,
   } = useAppState();
 
   const { weekStartOn, weekDays, startHour, endHour, cellRenderer } = month!;

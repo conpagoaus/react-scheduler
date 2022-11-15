@@ -53,7 +53,6 @@ interface CalendarEvent {
   disabled?: boolean;
   readOnly?: boolean;
   disabledHelperText?: string;
-  disabled?: boolean;
   color?: string;
   editable?: boolean;
   deletable?: boolean;

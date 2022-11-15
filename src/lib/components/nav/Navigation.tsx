@@ -49,16 +49,16 @@ const Navigation = () => {
         alignItems: "center",
       }}
     >
-      <div data-testid="date-navigator">{Boolean(extraAction) ? extraAction : renderDateSelector()}</div>
+      <div data-testid="date-navigator">{extraAction ? extraAction : renderDateSelector()}</div>
       <div data-testid="view-navigator" style={{ display: "flex", alignItems: "center" }}>
-      <div
+        <div
           style={{
             marginRight: 32,
           }}
         >
-        <Button onClick={() => handleState(new Date(), "selectedDate")}>
-          {translations.navigation.today}
-        </Button>
+          <Button onClick={() => handleState(new Date(), "selectedDate")}>
+            {translations.navigation.today}
+          </Button>
         </div>
         {Boolean(extraAction) && renderDateSelector()}
         {views.length > 1 &&
