@@ -1,11 +1,10 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { App } from "./Scheduler";
-import "./index.css";
+import * as React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
 
-ReactDOM.render(
-  <div style={{ margin: 10 }}>
+const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
+root.render(
+  <React.StrictMode>
     <App />
-  </div>,
-  document.getElementById("root")
+  </React.StrictMode>
 );

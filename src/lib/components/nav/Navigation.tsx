@@ -17,7 +17,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 export type View = "month" | "week" | "day";
 
 const Navigation = () => {
-  const { selectedDate, view, week, handleState, getViews, extraAction } =
+  const { selectedDate, view, week, handleState, getViews, translations, extraAction } =
     useAppState();
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const theme = useTheme();
@@ -31,21 +31,11 @@ const Navigation = () => {
   const renderDateSelector = () => {
     switch (view) {
       case "month":
-        return (
-          <MonthDateBtn selectedDate={selectedDate} onChange={handleState} />
-        );
+        return <MonthDateBtn selectedDate={selectedDate} onChange={handleState} />;
       case "week":
-        return (
-          <WeekDateBtn
-            selectedDate={selectedDate}
-            onChange={handleState}
-            weekProps={week!}
-          />
-        );
+        return <WeekDateBtn selectedDate={selectedDate} onChange={handleState} weekProps={week!} />;
       case "day":
-        return (
-          <DayDateBtn selectedDate={selectedDate} onChange={handleState} />
-        );
+        return <DayDateBtn selectedDate={selectedDate} onChange={handleState} />;
       default:
         return "";
     }
@@ -59,10 +49,10 @@ const Navigation = () => {
         alignItems: "center",
       }}
     >
-      {Boolean(extraAction) ? extraAction : renderDateSelector()}
-      <div style={{ display: "flex", alignItems: "center" }}>
+      <div data-testid="date-navigator">{Boolean(extraAction) ? extraAction : renderDateSelector()}</div>
+      <div data-testid="view-navigator" style={{ display: "flex", alignItems: "center" }}>
         <Button onClick={() => handleState(new Date(), "selectedDate")}>
-          Today
+          {translations.navigation.today}
         </Button>
         {Boolean(extraAction) && renderDateSelector()}
         {views.length > 1 &&
@@ -77,7 +67,7 @@ const Navigation = () => {
                   handleState(v, "view");
                 }}
               >
-                {v}
+                {translations.navigation[v]}
               </Button>
             ))
           ) : (
@@ -93,7 +83,7 @@ const Navigation = () => {
               <Popover
                 open={Boolean(anchorEl)}
                 anchorEl={anchorEl}
-                onClose={(e) => {
+                onClose={() => {
                   toggleMoreMenu();
                 }}
                 anchorOrigin={{
@@ -115,7 +105,7 @@ const Navigation = () => {
                         handleState(v, "view");
                       }}
                     >
-                      {v}
+                      {translations.navigation[v]}
                     </MenuItem>
                   ))}
                 </MenuList>

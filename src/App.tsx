@@ -3,16 +3,23 @@ import { EVENTS } from "./model/events";
 // import arSA from "date-fns/locale/ar-SA";
 import { Scheduler } from "./lib";
 
-const App = () => {
-  const [events, setEvents] = React.useState(EVENTS);
+function App() {
+  // const [events, setEvents] = React.React.useState(EVENTS);
 
   return (
     <Scheduler
-      dialogMaxWidth="sm"
+      events={EVENTS}
+      // getRemoteEvents={async () => {
+      //   return EVENTS;
+      // }}
+      // eventRenderer={(event) => <>{event.title}</>}
+      // dialogMaxWidth="sm"
       // loading={loading}
       // view="month"
-      events={events}
-      selectedDate={new Date("2021/5/1")}
+      // editable={false}
+      // deletable={false}
+      // draggable={false}
+      // selectedDate={new Date()}
       // height={800}
       // week={{
       //   weekDays: [0, 1, 2, 3, 4, 5],
@@ -177,7 +184,29 @@ const App = () => {
       // }}
       // viewerTitleComponent={(event) => <>{event.title}</>}
       // direction="rtl"
-      // locale={arSA}
+      //  locale={ptBR}
+      //  hourFormat={"24"}
+      //  translations={{
+      //   navigation: {
+      //     month: "Mês",
+      //     week: "Semana",
+      //     day: "Dia",
+      //     today: "Hoje"
+      //   },
+      //   form: {
+      //     addTitle: "Novo Evento",
+      //     editTitle: "Editar Evento",
+      //     confirm: "Confirmar",
+      //     delete: "Excluir",
+      //     cancel: "Cancelar",
+      //   },
+      //   event: {
+      //     title: "Título",
+      //     start: "Início",
+      //     end: "Fim"
+      //   },
+      //   moreEvents: "mais..."
+      // }}
       // onEventDrop={async (time, updated) => {
       //   return new Promise((res) => {
       //     setTimeout(() => {
@@ -192,6 +221,6 @@ const App = () => {
       // }}
     />
   );
-};
+}
 
-export { App };
+export default App;

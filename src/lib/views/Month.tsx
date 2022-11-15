@@ -15,7 +15,7 @@ import { useAppState } from "../hooks/useAppState";
 import { CellRenderedProps, DayHours, DefaultRecourse } from "../types";
 import { getResourcedEvents } from "../helpers/generals";
 import { WithResources } from "../components/common/WithResources";
-import { Cell } from "../components/common/Cell";
+import Cell from "../components/common/Cell";
 import { TableGrid } from "../styles/styles";
 
 export type WeekDays = 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -35,13 +35,14 @@ const Month = () => {
     events,
     handleGotoDay,
     remoteEvents,
+    getRemoteEvents,
     triggerLoading,
-    triggerDialog,
     handleState,
     resources,
     resourceFields,
     fields,
     locale,
+    hourFormat,,
   } = useAppState();
 
   const { weekStartOn, weekDays, startHour, endHour, cellRenderer } = month!;
@@ -54,6 +55,7 @@ const Month = () => {
     },
     { weekStartsOn: weekStartOn }
   );
+  const hFormat = hourFormat === "12" ? "hh:mm a" : "HH:mm";
   const daysList = weekDays.map((d) => addDays(eachWeekStart[0], d));
   const CELL_HEIGHT = height / eachWeekStart.length;
   const theme = useTheme();
@@ -62,12 +64,19 @@ const Month = () => {
     try {
       triggerLoading(true);
       const start = eachWeekStart[0];
-      const end = addDays(
-        eachWeekStart[eachWeekStart.length - 1],
-        daysList.length
-      );
-      const query = `?start=${start}&end=${end}`;
-      const events = await remoteEvents!(query);
+      const end = addDays(eachWeekStart[eachWeekStart.length - 1], daysList.length);
+      const events = await (async () => {
+        // Remove `remoteEvents` in future release
+        if (remoteEvents) {
+          return await remoteEvents(`?start=${start}&end=${end}`);
+        } else {
+          return await getRemoteEvents!({
+            start,
+            end,
+            view: "month",
+          });
+        }
+      })();
       if (events && events?.length) {
         handleState(events, "events");
       }
@@ -77,10 +86,11 @@ const Month = () => {
       triggerLoading(false);
     }
     // eslint-disable-next-line
-  }, [selectedDate]);
+  }, [selectedDate, remoteEvents, getRemoteEvents]);
 
   useEffect(() => {
-    if (remoteEvents instanceof Function) {
+    // Remove `remoteEvents` in future release
+    if ((remoteEvents || getRemoteEvents) instanceof Function) {
       fetchEvents();
     }
     // eslint-disable-next-line
@@ -89,54 +99,27 @@ const Month = () => {
   const renderCells = (resource?: DefaultRecourse) => {
     let recousedEvents = events;
     if (resource) {
-      recousedEvents = getResourcedEvents(
-        events,
-        resource,
-        resourceFields,
-        fields
-      );
+      recousedEvents = getResourcedEvents(events, resource, resourceFields, fields);
     }
     const rows: JSX.Element[] = [];
 
     for (const startDay of eachWeekStart) {
       const cells = weekDays.map((d) => {
         const today = addDays(startDay, d);
-        const start = new Date(
-          `${format(setHours(today, startHour), "yyyy/MM/dd hh:mm a")}`
-        );
-        const end = new Date(
-          `${format(setHours(today, endHour), "yyyy/MM/dd hh:mm a")}`
-        );
+        const start = new Date(`${format(setHours(today, startHour), `yyyy/MM/dd ${hFormat}`)}`);
+        const end = new Date(`${format(setHours(today, endHour), `yyyy/MM/dd ${hFormat}`)}`);
         const field = resourceFields.idField;
         return (
-          <span
-            style={{ height: CELL_HEIGHT }}
-            key={d.toString()}
-            className="rs__cell"
-          >
-            {cellRenderer ? (
-              cellRenderer({
-                day: selectedDate,
-                start,
-                end,
-                height: CELL_HEIGHT,
-                onClick: () =>
-                  triggerDialog(true, {
-                    start,
-                    end,
-                    [field]: resource ? resource[field] : null,
-                  }),
-                [field]: resource ? resource[field] : null,
-              })
-            ) : (
-              <Cell
-                start={start}
-                end={end}
-                resourceKey={field}
-                resourceVal={resource ? resource[field] : null}
-              />
-            )}
-
+          <span style={{ height: CELL_HEIGHT }} key={d.toString()} className="rs__cell">
+            <Cell
+              start={start}
+              end={end}
+              day={selectedDate}
+              height={CELL_HEIGHT}
+              resourceKey={field}
+              resourceVal={resource ? resource[field] : null}
+              cellRenderer={cellRenderer}
+            />
             <Fragment>
               <Avatar
                 style={{
@@ -144,15 +127,13 @@ const Month = () => {
                   height: 27,
                   position: "absolute",
                   top: 0,
-                  background: isToday(today) ? "#3182CE" : "transparent",
-                  color: isToday(today) ? theme.palette.secondary.dark : "",
+                  background: isToday(today) ? theme.palette.secondary.main : "transparent",
+                  color: isToday(today) ? theme.palette.secondary.contrastText : "",
                   marginBottom: 2,
                 }}
               >
                 <Typography
-                  color={
-                    !isSameMonth(today, monthStart) ? "#ccc" : "textPrimary"
-                  }
+                  color={!isSameMonth(today, monthStart) ? "#ccc" : "textPrimary"}
                   className="rs__hover__op"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -197,11 +178,7 @@ const Month = () => {
     );
   };
 
-  return resources.length ? (
-    <WithResources renderChildren={renderTable} />
-  ) : (
-    renderTable()
-  );
+  return resources.length ? <WithResources renderChildren={renderTable} /> : renderTable();
 };
 
 export { Month };

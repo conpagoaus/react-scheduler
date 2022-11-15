@@ -16,7 +16,7 @@ const DayDateBtn = ({ selectedDate, onChange }: DayDateBtnProps) => {
   const [open, setOpen] = useState(false);
   const toggleDialog = () => setOpen(!open);
 
-  const handleChange = (e: Date | null, k?: string) => {
+  const handleChange = (e: Date | null) => {
     onChange(e || new Date(), "selectedDate");
   };
 
@@ -29,7 +29,7 @@ const DayDateBtn = ({ selectedDate, onChange }: DayDateBtnProps) => {
     onChange(nexDay, "selectedDate");
   };
   return (
-    <div>
+    <>
       <LocaleArrow type="prev" onClick={handlePrev} />
       <DateProvider>
         <DatePicker
@@ -51,7 +51,7 @@ const DayDateBtn = ({ selectedDate, onChange }: DayDateBtnProps) => {
         />
       </DateProvider>
       <LocaleArrow type="next" onClick={handleNext} />
-    </div>
+    </>
   );
 };
 

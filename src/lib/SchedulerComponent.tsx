@@ -25,7 +25,7 @@ const SchedulerComponent = () => {
   }, [view]);
 
   return (
-    <Wrapper>
+    <Wrapper dialog={dialog ? 1 : 0} data-testid="rs-wrapper">
       {loading && (
         <div className="rs__table_loading">
           <span>
@@ -35,12 +35,8 @@ const SchedulerComponent = () => {
         </div>
       )}
       <Navigation />
-      <div className="rs__outer_table">
-        <Table
-          resource_count={resourceViewMode === "tabs" ? 1 : resources.length}
-        >
-          {Views}
-        </Table>
+      <div className="rs__outer_table" data-testid="grid">
+        <Table resource_count={resourceViewMode === "tabs" ? 1 : resources.length}>{Views}</Table>
       </div>
       {dialog && <Editor />}
     </Wrapper>

@@ -19,19 +19,10 @@ import {
 import TodayTypo from "../components/common/TodayTypo";
 import EventItem from "../components/events/EventItem";
 import { useAppState } from "../hooks/useAppState";
-import {
-  CellRenderedProps,
-  DayHours,
-  DefaultRecourse,
-  ProcessedEvent,
-} from "../types";
-import {
-  calcCellHeight,
-  calcMinuteHeight,
-  getResourcedEvents,
-} from "../helpers/generals";
+import { CellRenderedProps, DayHours, DefaultRecourse, ProcessedEvent } from "../types";
+import { calcCellHeight, calcMinuteHeight, getResourcedEvents } from "../helpers/generals";
 import { WithResources } from "../components/common/WithResources";
-import { Cell } from "../components/common/Cell";
+import Cell from "../components/common/Cell";
 import TodayEvents from "../components/events/TodayEvents";
 import { TableGrid } from "../styles/styles";
 import { MULTI_DAY_EVENT_HEIGHT } from "../helpers/constants";
@@ -49,8 +40,8 @@ const Day = () => {
     selectedDate,
     events,
     height,
-    triggerDialog,
     remoteEvents,
+    getRemoteEvents,
     triggerLoading,
     handleState,
     resources,
@@ -58,6 +49,7 @@ const Day = () => {
     fields,
     direction,
     locale,
+    hourFormat,
   } = useAppState();
 
   const { startHour, endHour, step, cellRenderer } = day!;
@@ -72,6 +64,7 @@ const Day = () => {
   );
   const CELL_HEIGHT = calcCellHeight(height, hours.length);
   const MINUTE_HEIGHT = calcMinuteHeight(CELL_HEIGHT, step);
+  const hFormat = hourFormat === "12" ? "hh:mm a" : "HH:mm";
   const todayEvents = events.sort((b, a) => a.end.getTime() - b.end.getTime());
 
   const fetchEvents = useCallback(async () => {
@@ -79,8 +72,18 @@ const Day = () => {
       triggerLoading(true);
       const start = addDays(START_TIME, -1);
       const end = addDays(END_TIME, 1);
-      const query = `?start=${start}&end=${end}`;
-      const events = await remoteEvents!(query);
+      const events = await (async () => {
+        // Remove `remoteEvents` in future release
+        if (remoteEvents) {
+          return await remoteEvents(`?start=${start}&end=${end}`);
+        } else {
+          return await getRemoteEvents!({
+            start,
+            end,
+            view: "day",
+          });
+        }
+      })();
       if (events && events?.length) {
         handleState(events, "events");
       }
@@ -90,10 +93,11 @@ const Day = () => {
       triggerLoading(false);
     }
     // eslint-disable-next-line
-  }, [selectedDate]);
+  }, [selectedDate, remoteEvents, getRemoteEvents]);
 
   useEffect(() => {
-    if (remoteEvents instanceof Function) {
+    // Remove `remoteEvents` in future release
+    if ((remoteEvents || getRemoteEvents) instanceof Function) {
       fetchEvents();
     }
     // eslint-disable-next-line
@@ -110,10 +114,7 @@ const Day = () => {
     );
 
     return (
-      <div
-        className="rs__block_col"
-        style={{ height: MULTI_DAY_EVENT_HEIGHT * multiDays.length }}
-      >
+      <div className="rs__block_col" style={{ height: MULTI_DAY_EVENT_HEIGHT * multiDays.length }}>
         {multiDays.map((event, i) => {
           const hasPrev = isBefore(event.start, startOfDay(selectedDate));
           const hasNext = isAfter(event.end, endOfDay(selectedDate));
@@ -126,12 +127,7 @@ const Day = () => {
                 width: "100%",
               }}
             >
-              <EventItem
-                event={event}
-                multiday
-                hasPrev={hasPrev}
-                hasNext={hasNext}
-              />
+              <EventItem event={event} multiday hasPrev={hasPrev} hasNext={hasNext} />
             </div>
           );
         })}
@@ -142,12 +138,7 @@ const Day = () => {
   const renderTable = (resource?: DefaultRecourse) => {
     let recousedEvents = todayEvents;
     if (resource) {
-      recousedEvents = getResourcedEvents(
-        todayEvents,
-        resource,
-        resourceFields,
-        fields
-      );
+      recousedEvents = getResourcedEvents(todayEvents, resource, resourceFields, fields);
     }
 
     const allWeekMulti = events.filter(
@@ -165,9 +156,7 @@ const Day = () => {
         {/* Header */}
         <span className="rs__cell"></span>
         <span
-          className={`rs__cell rs__header ${
-            isToday(selectedDate) ? "rs__today_cell" : ""
-          }`}
+          className={`rs__cell rs__header ${isToday(selectedDate) ? "rs__today_cell" : ""}`}
           style={{ height: headerHeight }}
         >
           <TodayTypo date={selectedDate} locale={locale} />
@@ -176,41 +165,25 @@ const Day = () => {
 
         {/* Body */}
         {hours.map((h, i) => {
-          const start = new Date(
-            `${format(selectedDate, "yyyy/MM/dd")} ${format(h, "hh:mm a")}`
-          );
+          const start = new Date(`${format(selectedDate, "yyyy/MM/dd")} ${format(h, hFormat)}`);
           const end = new Date(
-            `${format(selectedDate, "yyyy/MM/dd")} ${format(
-              addMinutes(h, step),
-              "hh:mm a"
-            )}`
+            `${format(selectedDate, "yyyy/MM/dd")} ${format(addMinutes(h, step), hFormat)}`
           );
           const field = resourceFields.idField;
 
           return (
             <Fragment key={i}>
               {/* Time Cells */}
-              <span
-                className="rs__cell rs__header rs__time"
-                style={{ height: CELL_HEIGHT }}
-              >
-                <Typography variant="caption">
-                  {format(h, "hh:mm a", { locale: locale })}
-                </Typography>
+              <span className="rs__cell rs__header rs__time" style={{ height: CELL_HEIGHT }}>
+                <Typography variant="caption">{format(h, hFormat, { locale: locale })}</Typography>
               </span>
 
-              <span
-                className={`rs__cell ${
-                  isToday(selectedDate) ? "rs__today_cell" : ""
-                }`}
-              >
+              <span className={`rs__cell ${isToday(selectedDate) ? "rs__today_cell" : ""}`}>
                 {/* Events of this day - run once on the top hour column */}
                 {i === 0 && (
                   <TodayEvents
                     todayEvents={recousedEvents.filter(
-                      (e) =>
-                        !differenceInDays(e.end, e.start) &&
-                        isSameDay(selectedDate, e.start)
+                      (e) => !differenceInDays(e.end, e.start) && isSameDay(selectedDate, e.start)
                     )}
                     today={START_TIME}
                     minuteHeight={MINUTE_HEIGHT}
@@ -220,28 +193,15 @@ const Day = () => {
                   />
                 )}
                 {/* Cell */}
-                {cellRenderer ? (
-                  cellRenderer({
-                    day: selectedDate,
-                    start,
-                    end,
-                    height: CELL_HEIGHT,
-                    onClick: () =>
-                      triggerDialog(true, {
-                        start,
-                        end,
-                        [field]: resource ? resource[field] : null,
-                      }),
-                    [field]: resource ? resource[field] : null,
-                  })
-                ) : (
-                  <Cell
-                    start={start}
-                    end={end}
-                    resourceKey={field}
-                    resourceVal={resource ? resource[field] : null}
-                  />
-                )}
+                <Cell
+                  start={start}
+                  end={end}
+                  day={selectedDate}
+                  height={CELL_HEIGHT}
+                  resourceKey={field}
+                  resourceVal={resource ? resource[field] : null}
+                  cellRenderer={cellRenderer}
+                />
               </span>
             </Fragment>
           );
@@ -250,11 +210,7 @@ const Day = () => {
     );
   };
 
-  return resources.length ? (
-    <WithResources span={2} renderChildren={renderTable} />
-  ) : (
-    renderTable()
-  );
+  return resources.length ? <WithResources span={2} renderChildren={renderTable} /> : renderTable();
 };
 
 export { Day };

@@ -1,9 +1,10 @@
 import { ProcessedEvent } from "../../types";
 import EventItem from "./EventItem";
-import { differenceInMinutes, setHours } from "date-fns";
+import { differenceInMinutes, setHours, isToday } from "date-fns";
 import { traversCrossingEvents } from "../../helpers/generals";
 import { BORDER_HEIGHT } from "../../helpers/constants";
 import { Fragment } from "react";
+import CurrentTimeBar from "./CurrentTimeBar";
 
 interface TodayEventsProps {
   todayEvents: ProcessedEvent[];
@@ -25,13 +26,18 @@ const TodayEvents = ({
 
   return (
     <Fragment>
-      {todayEvents.map((event, i) => {
-        const height =
-          differenceInMinutes(event.end, event.start) * minuteHeight;
-        const minituesFromTop = differenceInMinutes(
-          event.start,
-          setHours(today, startHour)
-        );
+      {isToday(today) && (
+        <CurrentTimeBar
+          today={today}
+          startHour={startHour}
+          step={step}
+          minuteHeight={minuteHeight}
+        />
+      )}
+
+      {todayEvents.map((event) => {
+        const height = differenceInMinutes(event.end, event.start) * minuteHeight;
+        const minituesFromTop = differenceInMinutes(event.start, setHours(today, startHour));
         const topSpace = minituesFromTop * minuteHeight; //+ headerHeight;
         /**
          * Add border height since grid has a 1px border
@@ -42,9 +48,7 @@ const TodayEvents = ({
         const top = topSpace + borderFactor;
 
         const crossingEvents = traversCrossingEvents(todayEvents, event);
-        const alreadyRendered = crossingEvents.filter((e) =>
-          crossingIds.includes(e.event_id)
-        );
+        const alreadyRendered = crossingEvents.filter((e) => crossingIds.includes(e.event_id));
         crossingIds.push(event.event_id);
 
         return (
@@ -54,13 +58,9 @@ const TodayEvents = ({
             style={{
               height,
               top,
-              width: crossingEvents.length
-                ? `${100 / (crossingEvents.length + 1)}%`
-                : "95%", //Leave some space to click cell
+              width: crossingEvents.length ? `${100 / (crossingEvents.length + 1)}%` : "95%", //Leave some space to click cell
               [direction === "rtl" ? "right" : "left"]:
-                alreadyRendered.length > 0
-                  ? `calc(100%/${alreadyRendered.length + 1})`
-                  : "",
+                alreadyRendered.length > 0 ? `calc(100%/${alreadyRendered.length + 1})` : "",
             }}
           >
             <EventItem event={event} />

@@ -34,10 +34,7 @@ export type StateItem = {
 
 export type StateEvent = (ProcessedEvent & SelectedRange) | Record<string, any>;
 
-const initialState = (
-  fields: FieldProps[],
-  event?: StateEvent
-): Record<string, StateItem> => {
+const initialState = (fields: FieldProps[], event?: StateEvent): Record<string, StateItem> => {
   const customFields = {} as Record<string, StateItem>;
   for (const field of fields) {
     const defVal = arraytizeFieldVal(field, field.default, event);
@@ -45,9 +42,7 @@ const initialState = (
 
     customFields[field.name] = {
       value: eveVal.value || defVal.value || "",
-      validity: field.config?.required
-        ? !!eveVal.validity || !!defVal.validity
-        : true,
+      validity: field.config?.required ? !!eveVal.validity || !!defVal.validity : true,
       type: field.type,
       config: field.config,
     };
@@ -93,10 +88,9 @@ const Editor = () => {
     customEditor,
     confirmEvent,
     dialogMaxWidth,
+    translations,
   } = useAppState();
-  const [state, setState] = useState(
-    initialState(fields, selectedEvent || selectedRange)
-  );
+  const [state, setState] = useState(initialState(fields, selectedEvent || selectedRange));
   const [touched, setTouched] = useState<boolean>(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -130,10 +124,7 @@ const Editor = () => {
       // Auto fix date
       body.end =
         body.start >= body.end
-          ? addMinutes(
-              body.start,
-              differenceInMinutes(selectedRange?.end!, selectedRange?.start!)
-            )
+          ? addMinutes(body.start, differenceInMinutes(selectedRange?.end!, selectedRange?.start!))
           : body.end;
       // Specify action
       const action: EventActions = selectedEvent?.event_id ? "edit" : "create";
@@ -143,8 +134,7 @@ const Editor = () => {
       } else {
         // Create/Edit local data
         body.event_id =
-          selectedEvent?.event_id ||
-          Date.now().toString(36) + Math.random().toString(36).slice(2);
+          selectedEvent?.event_id || Date.now().toString(36) + Math.random().toString(36).slice(2);
       }
       confirmEvent(body, action);
       handleClose(true);
@@ -166,6 +156,7 @@ const Editor = () => {
             onChange={handleEditorState}
             touched={touched}
             {...stateItem.config}
+            label={translations.event[key] || stateItem.config?.label}
           />
         );
       case "date":
@@ -175,6 +166,7 @@ const Editor = () => {
             name={key}
             onChange={(...args) => handleEditorState(...args, true)}
             {...stateItem.config}
+            label={translations.event[key] || stateItem.config?.label}
           />
         );
       case "select":
@@ -187,6 +179,7 @@ const Editor = () => {
             onChange={handleEditorState}
             touched={touched}
             {...stateItem.config}
+            label={translations.event[key] || stateItem.config?.label}
           />
         );
       default:
@@ -207,7 +200,9 @@ const Editor = () => {
     }
     return (
       <Fragment>
-        <DialogTitle>{selectedEvent ? "Edit Event" : "Add Event"}</DialogTitle>
+        <DialogTitle>
+          {selectedEvent ? translations.form.editTitle : translations.form.addTitle}
+        </DialogTitle>
         <DialogContent style={{ overflowX: "hidden" }}>
           <Grid container spacing={1}>
             {Object.keys(state).map((key) => {
@@ -222,10 +217,10 @@ const Editor = () => {
         </DialogContent>
         <DialogActions>
           <Button color="inherit" fullWidth onClick={() => handleClose()}>
-            Cancel
+            {translations.form.cancel}
           </Button>
           <Button color="primary" fullWidth onClick={handleConfirm}>
-            Confirm
+            {translations.form.confirm}
           </Button>
         </DialogActions>
       </Fragment>

@@ -18,7 +18,7 @@ const MonthDateBtn = ({ selectedDate, onChange }: MonthDateBtnProps) => {
 
   const toggleDialog = () => setOpen(!open);
 
-  const handleChange = (e: Date | null, k?: string) => {
+  const handleChange = (e: Date | null) => {
     onChange(e || new Date(), "selectedDate");
   };
   const handlePrev = () => {
@@ -30,7 +30,7 @@ const MonthDateBtn = ({ selectedDate, onChange }: MonthDateBtnProps) => {
     onChange(setMonth(selectedDate, nextMonth), "selectedDate");
   };
   return (
-    <div>
+    <>
       <LocaleArrow type="prev" onClick={handlePrev} />
       <DateProvider>
         <DatePicker
@@ -48,7 +48,7 @@ const MonthDateBtn = ({ selectedDate, onChange }: MonthDateBtnProps) => {
         />
       </DateProvider>
       <LocaleArrow type="next" onClick={handleNext} />
-    </div>
+    </>
   );
 };
 

@@ -1,3 +1,4 @@
+import { DragEvent } from "react";
 import { DayProps } from "./views/Day";
 import { StateItem } from "./views/Editor";
 import { MonthProps } from "./views/Month";
@@ -39,6 +40,10 @@ export interface CellRenderedProps {
   end: Date;
   height: number;
   onClick(): void;
+  onDragOver(e: DragEvent<HTMLButtonElement>): void;
+  onDragEnter(e: DragEvent<HTMLButtonElement>): void;
+  onDragLeave(e: DragEvent<HTMLButtonElement>): void;
+  onDrop(e: DragEvent<HTMLButtonElement>): void;
 }
 interface CalendarEvent {
   event_id: number | string;
@@ -48,7 +53,27 @@ interface CalendarEvent {
   disabled?: boolean;
   readOnly?: boolean;
   disabledHelperText?: string;
-  // description?: string;
+  disabled?: boolean;
+  color?: string;
+  editable?: boolean;
+  deletable?: boolean;
+  draggable?: boolean;
+}
+export interface Translations {
+  navigation: Record<View, string> & { today: string };
+  form: {
+    addTitle: string;
+    editTitle: string;
+    confirm: string;
+    delete: string;
+    cancel: string;
+  };
+  event: Record<string, string> & {
+    title: string;
+    start: string;
+    end: string;
+  };
+  moreEvents: string;
 }
 
 export type InputTypes = "input" | "date" | "select" | "hidden";
@@ -109,6 +134,11 @@ export interface FieldProps {
 }
 export type ProcessedEvent = CalendarEvent & Record<string, any>;
 export type EventActions = "create" | "edit";
+export type ViewEvent = {
+  start: Date;
+  end: Date;
+  view: "day" | "week" | "month";
+};
 export type DefaultRecourse = {
   assignee?: string | number;
   text?: string;
@@ -150,8 +180,13 @@ export interface SchedulerProps {
   selectedDate: Date;
   /**Events to display */
   events: ProcessedEvent[];
-  /**Async function to load remote data */
+  /** Custom event render method */
+  eventRenderer?: (event: ProcessedEvent) => JSX.Element | null;
+  /**Async function to load remote data
+   * @deprecated User `getRemoteEvents` */
   remoteEvents?(query: string): Promise<ProcessedEvent[] | void>;
+  /**Async function to load remote data with current view data. */
+  getRemoteEvents?(params: ViewEvent): Promise<ProcessedEvent[] | void>;
   /**Custom additional fields with it's settings */
   fields: FieldProps[];
   /**Table loading state */
@@ -190,6 +225,14 @@ export interface SchedulerProps {
    */
   locale: Locale;
   /**
+   * Localization
+   */
+  translations: Translations;
+  /**
+   * Hour Format
+   */
+  hourFormat: "12" | "24";
+  /**
    * Triggerd when event is dropped on time slot.
    */
   onEventDrop?(
@@ -197,6 +240,21 @@ export interface SchedulerProps {
     updatedEvent: ProcessedEvent,
     originalEvent: ProcessedEvent
   ): Promise<ProcessedEvent | void>;
+  /**
+   * If event is deletable, applied to all events globally, overridden by event specific deletable prop
+   * @default true
+   */
+  deletable?: boolean;
+  /**
+   * If event is editable, applied to all events globally, overridden by event specific editable prop
+   * @default true
+   */
+  editable?: boolean;
+  /**
+   * If event is draggable, applied to all events globally, overridden by event specific draggable prop
+   * @default true
+   */
+  draggable?: boolean;
   /** React node to display in the header */
   extraAction?: ReactNode;
 }

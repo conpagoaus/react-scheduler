@@ -1,16 +1,16 @@
 import { alpha, styled } from "@mui/material";
 
-export const Wrapper = styled("div")(({ theme }) => ({
+export const Wrapper = styled("div")<{ dialog: number }>(({ theme, dialog }) => ({
   position: "relative",
   overflow: "hidden",
   "& .rs__table_loading": {
-    background: "#ffffff70",
+    background: dialog ? "" : alpha(theme.palette.background.paper, 0.4),
     position: "absolute",
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
-    zIndex: 9,
+    zIndex: 999999,
     "& > span": {
       height: "100%",
       display: "flex",
@@ -24,22 +24,19 @@ export const Wrapper = styled("div")(({ theme }) => ({
   },
 }));
 
-export const Table = styled("div")<{ resource_count: number }>(
-  ({ resource_count }) => ({
-    position: "relative",
-    display: "grid",
-    gridTemplateColumns: `repeat(${resource_count}, 1fr)`,
-    width: "100%",
-    overflowX: "auto",
-    overflowY: "hidden",
-  })
-);
+export const Table = styled("div")<{ resource_count: number }>(({ resource_count }) => ({
+  position: "relative",
+  display: "grid",
+  gridTemplateColumns: `repeat(${resource_count}, 1fr)`,
+  width: "100%",
+  overflowX: "auto",
+  overflowY: "hidden",
+}));
 export const TableGrid = styled("div")<{ days: number; indent?: string }>(
   ({ days, indent = "1", theme }) => ({
     position: "relative",
     display: "grid",
-    gridTemplateColumns:
-      +indent > 0 ? `10% repeat(${days}, 1fr)` : `repeat(${days}, 1fr)`,
+    gridTemplateColumns: +indent > 0 ? `10% repeat(${days}, 1fr)` : `repeat(${days}, 1fr)`,
     [theme.breakpoints.down("sm")]: {
       gridTemplateColumns: +indent > 0 ? `30px repeat(${days}, 1fr)` : "",
     },
@@ -100,15 +97,52 @@ export const TableGrid = styled("div")<{ days: number; indent?: string }>(
   })
 );
 
-export const PopperInner = styled("div")(() => ({
-  minWidth: 400,
-  maxWidth: "95%",
+export const PopperInner = styled("div")(({ theme }) => ({
+  width: "100%",
+  maxWidth: 400,
   "& > div": {
     padding: "5px 10px",
     "& .rs__popper_actions": {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
+      "& .MuiIconButton-root": {
+        color: theme.palette.primary.contrastText,
+      },
     },
+  },
+}));
+
+export const EventActions = styled("div")(({ theme }) => ({
+  display: "inherit",
+  "& .MuiIconButton-root": {
+    color: theme.palette.primary.contrastText,
+  },
+  "& .MuiButton-root": {
+    "&.delete": {
+      color: theme.palette.error.main,
+    },
+    "&.cancel": {
+      color: theme.palette.action.disabled,
+    },
+  },
+}));
+
+export const TimeIndicatorBar = styled("div")(({ theme }) => ({
+  position: "absolute",
+  zIndex: theme.zIndex.tooltip,
+  width: "100%",
+  display: "flex",
+  "& > div:first-of-type": {
+    height: 12,
+    width: 12,
+    borderRadius: "50%",
+    background: theme.palette.error.light,
+    marginLeft: -6,
+    marginTop: -5,
+  },
+  "& > div:last-of-type": {
+    borderTop: `solid 2px ${theme.palette.error.light}`,
+    width: "100%",
   },
 }));

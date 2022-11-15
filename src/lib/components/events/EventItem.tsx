@@ -1,26 +1,16 @@
-import { Fragment, useState } from "react";
-import {
-  Popover,
-  Typography,
-  ButtonBase,
-  useTheme,
-  IconButton,
-  Button,
-  Slide,
-  Paper,
-  Tooltip,
+import { Fragment, useMemo, useState } from "react";
+import { Popover, Typography, ButtonBase, useTheme, IconButton, Paper, Tooltip,
 } from "@mui/material";
 import { format } from "date-fns";
 import { ProcessedEvent } from "../../types";
 import { useAppState } from "../../hooks/useAppState";
 import ArrowRightRoundedIcon from "@mui/icons-material/ArrowRightRounded";
 import ArrowLeftRoundedIcon from "@mui/icons-material/ArrowLeftRounded";
-import EditRoundedIcon from "@mui/icons-material/EditRounded";
-import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
 import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import SupervisorAccountRoundedIcon from "@mui/icons-material/SupervisorAccountRounded";
 import { PopperInner } from "../../styles/styles";
+import EventActions from "./Actions";
 
 interface EventItemProps {
   event: ProcessedEvent;
@@ -30,13 +20,7 @@ interface EventItemProps {
   showdate?: boolean;
 }
 
-const EventItem = ({
-  event,
-  multiday,
-  hasPrev,
-  hasNext,
-  showdate,
-}: EventItemProps) => {
+const EventItem = ({ event, multiday, hasPrev, hasNext, showdate }: EventItemProps) => {
   const {
     triggerDialog,
     onDelete,
@@ -51,16 +35,21 @@ const EventItem = ({
     resourceFields,
     locale,
     viewerTitleComponent,
+    editable,
+    deletable,
+    hourFormat,
+    eventRenderer,
+    view,
+    draggable,
   } = useAppState();
 
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<boolean>(false);
   const theme = useTheme();
+  const hFormat = hourFormat === "12" ? "hh:mm a" : "HH:mm";
 
-  const NextArrow =
-    direction === "rtl" ? ArrowLeftRoundedIcon : ArrowRightRoundedIcon;
-  const PrevArrow =
-    direction === "rtl" ? ArrowRightRoundedIcon : ArrowLeftRoundedIcon;
+  const NextArrow = direction === "rtl" ? ArrowLeftRoundedIcon : ArrowRightRoundedIcon;
+  const PrevArrow = direction === "rtl" ? ArrowRightRoundedIcon : ArrowLeftRoundedIcon;
 
   const triggerViewer = (el?: Element) => {
     if (!el && deleteConfirm) {
@@ -69,7 +58,7 @@ const EventItem = ({
     setAnchorEl(el || null);
   };
 
-  const handleConfirmDelete = async () => {
+  const handleDelete = async () => {
     try {
       triggerLoading(true);
       let deletedId = event.event_id;
@@ -101,9 +90,9 @@ const EventItem = ({
       </Typography>
       {showdate && (
         <Typography style={{ fontSize: 11 }} noWrap>
-          {`${format(event.start, "hh:mm a", {
+          {`${format(event.start, hFormat, {
             locale: locale,
-          })} - ${format(event.end, "hh:mm a", { locale: locale })}`}
+          })} - ${format(event.end, hFormat, { locale: locale })}`}
         </Typography>
       )}
     </div>
@@ -123,22 +112,17 @@ const EventItem = ({
           {hasPrev ? (
             <PrevArrow fontSize="small" sx={{ display: "flex" }} />
           ) : (
-            showdate && format(event.start, "hh:mm a", { locale: locale })
+            showdate && format(event.start, hFormat, { locale: locale })
           )}
         </Typography>
-        <Typography
-          variant="subtitle2"
-          align="center"
-          sx={{ fontSize: 12 }}
-          noWrap
-        >
+        <Typography variant="subtitle2" align="center" sx={{ fontSize: 12 }} noWrap>
           {event.title}
         </Typography>
         <Typography sx={{ fontSize: 11 }} noWrap>
           {hasNext ? (
             <NextArrow fontSize="small" sx={{ display: "flex" }} />
           ) : (
-            showdate && format(event.end, "hh:mm a", { locale: locale })
+            showdate && format(event.end, hFormat, { locale: locale })
           )}
         </Typography>
       </div>
@@ -148,9 +132,7 @@ const EventItem = ({
   const renderViewer = () => {
     const idKey = resourceFields.idField;
     const hasResource = resources.filter((res) =>
-      Array.isArray(event[idKey])
-        ? event[idKey].includes(res[idKey])
-        : res[idKey] === event[idKey]
+      Array.isArray(event[idKey]) ? event[idKey].includes(res[idKey]) : res[idKey] === event[idKey]
     );
 
     const isEditDisabled =
@@ -171,7 +153,6 @@ const EventItem = ({
             <div>
               <IconButton
                 size="small"
-                style={{ color: theme.palette.primary.contrastText }}
                 onClick={() => {
                   triggerViewer();
                 }}
@@ -179,60 +160,17 @@ const EventItem = ({
                 <ClearRoundedIcon color="disabled" />
               </IconButton>
             </div>
-            <div style={{ display: "inherit" }}>
-              <IconButton
-                size="small"
-                disabled={isEditDisabled}
-                style={{
-                  color: isEditDisabled
-                    ? "#808080"
-                    : theme.palette.primary.contrastText,
-                }}
-                onClick={() => {
-                  triggerViewer();
-                  triggerDialog(true, event);
-                }}
-              >
-                <EditRoundedIcon />
-              </IconButton>
-              {!deleteConfirm && (
-                <IconButton
-                  disabled={isDeleteDisabled}
-                  size="small"
-                  style={{
-                    color: isDeleteDisabled
-                      ? "#808080"
-                      : theme.palette.primary.contrastText,
-                  }}
-                  onClick={() => setDeleteConfirm(true)}
-                >
-                  <DeleteRoundedIcon />
-                </IconButton>
-              )}
-              <Slide
-                in={deleteConfirm}
-                direction={direction === "rtl" ? "right" : "left"}
-                mountOnEnter
-                unmountOnExit
-              >
-                <div>
-                  <Button
-                    style={{ color: theme.palette.error.main }}
-                    size="small"
-                    onClick={handleConfirmDelete}
-                  >
-                    DELETE
-                  </Button>
-                  <Button
-                    style={{ color: theme.palette.action.disabled }}
-                    size="small"
-                    onClick={() => setDeleteConfirm(false)}
-                  >
-                    CANCEL
-                  </Button>
-                </div>
-              </Slide>
-            </div>
+            <EventActions
+              event={event}
+              onDelete={handleDelete}
+              onEdit={() => {
+                triggerViewer();
+                triggerDialog(true, event);
+              }}
+              direction={direction}
+              deletable={deletable}
+              editable={editable}
+            />
           </div>
           {viewerTitleComponent instanceof Function ? (
             viewerTitleComponent(event)
@@ -250,9 +188,9 @@ const EventItem = ({
             noWrap
           >
             <EventNoteRoundedIcon />{" "}
-            {`${format(event.start, "dd MMMM yyyy hh:mm a", {
+            {`${format(event.start, `dd MMMM yyyy ${hFormat}`, {
               locale: locale,
-            })} - ${format(event.end, "dd MMMM yyyy hh:mm a", {
+            })} - ${format(event.end, `dd MMMM yyyy ${hFormat}`, {
               locale: locale,
             })}`}
           </Typography>
@@ -264,9 +202,7 @@ const EventItem = ({
               noWrap
             >
               <SupervisorAccountRoundedIcon />{" "}
-              {hasResource
-                .map((res) => res[resourceFields.textField])
-                .join(", ")}
+              {hasResource.map((res) => res[resourceFields.textField]).join(", ")}
             </Typography>
           )}
           {viewerExtraComponent instanceof Function
@@ -277,72 +213,91 @@ const EventItem = ({
     );
   };
 
+  const renderEvent = useMemo(() => {
+    // Check if has custom render event method
+    // only applicable to non-multiday events and not in month-view
+    let ev = item;
+    if (typeof eventRenderer === "function" && !multiday && view !== "month") {
+      const custom = eventRenderer(event);
+      if (custom) {
+        ev = custom;
+      }
+    }
+    return ev;
+  }, []);
+
+  const isDraggable = useMemo(() => {
+    // if Disabled
+    if (event.disabled) return false;
+
+    // global-wise isDraggable
+    let canDrag = typeof draggable !== "undefined" ? draggable : true;
+    // Override by event-wise
+    if (typeof event.draggable !== "undefined") {
+      canDrag = event.draggable;
+    }
+
+    return canDrag;
+  }, []);
+
   return (
     <Fragment>
-      <Tooltip title={event?.disabledHelperText || ""}>
-        <Paper
+      <Paper
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "block",
+          background: event.disabled ? "#d0d0d0" : event.color || theme.palette.primary.main,
+          color: event.disabled ? "#808080" : theme.palette.primary.contrastText,
+          cursor: event.disabled ? "not-allowed" : "pointer",
+          overflow: "hidden",
+        }}
+      >
+        <ButtonBase
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            triggerViewer(e.currentTarget);
+          }}
+          disabled={event.disabled}
           style={{
             width: "100%",
             height: "100%",
             display: "block",
-            background: event.disabled
-              ? "#d0d0d0"
-              : event.color || theme.palette.primary.main,
-            color: event.disabled
-              ? "#808080"
-              : theme.palette.primary.contrastText,
-            cursor: event.disabled ? "not-allowed" : "pointer",
-            overflow: "hidden",
           }}
         >
-          <ButtonBase
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              triggerViewer(e.currentTarget);
-            }}
-            disabled={event.disabled}
+          <div
             style={{
-              width: "100%",
               height: "100%",
-              display: "block",
+            }}
+            draggable={isDraggable}
+            onDragStart={(e) => {
+              e.stopPropagation();
+              e.dataTransfer.setData("text/plain", `${event.event_id}`);
+              e.currentTarget.style.backgroundColor = theme.palette.error.main;
+            }}
+            onDragEnd={(e) => {
+              e.currentTarget.style.backgroundColor = event.color || theme.palette.primary.main;
+            }}
+            onDragOver={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            onDragEnter={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
             }}
           >
-            <div
-              style={{
-                height: "100%",
-              }}
-              draggable
-              onDragStart={(e) => {
-                e.stopPropagation();
-                e.dataTransfer.setData("text/plain", `${event.event_id}`);
-                e.currentTarget.style.backgroundColor =
-                  theme.palette.error.main;
-              }}
-              onDragEnd={(e) => {
-                e.currentTarget.style.backgroundColor =
-                  event.color || theme.palette.primary.main;
-              }}
-              onDragOver={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
-              onDragEnter={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
-            >
-              {item}
-            </div>
-          </ButtonBase>
-        </Paper>
-      </Tooltip>
+            {renderEvent}
+          </div>
+        </ButtonBase>
+      </Paper>
 
       {/* Viewer */}
       <Popover
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
-        onClose={(e) => {
+        onClose={() => {
           triggerViewer();
         }}
         anchorOrigin={{

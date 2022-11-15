@@ -20,20 +20,11 @@ import {
 import TodayTypo from "../components/common/TodayTypo";
 import EventItem from "../components/events/EventItem";
 import { useAppState } from "../hooks/useAppState";
-import {
-  CellRenderedProps,
-  DayHours,
-  DefaultRecourse,
-  ProcessedEvent,
-} from "../types";
+import { CellRenderedProps, DayHours, DefaultRecourse, ProcessedEvent } from "../types";
 import { WeekDays } from "./Month";
-import {
-  calcCellHeight,
-  calcMinuteHeight,
-  getResourcedEvents,
-} from "../helpers/generals";
+import { calcCellHeight, calcMinuteHeight, getResourcedEvents } from "../helpers/generals";
 import { WithResources } from "../components/common/WithResources";
-import { Cell } from "../components/common/Cell";
+import Cell from "../components/common/Cell";
 import TodayEvents from "../components/events/TodayEvents";
 import { TableGrid } from "../styles/styles";
 import { MULTI_DAY_EVENT_HEIGHT } from "../helpers/constants";
@@ -53,9 +44,9 @@ const Week = () => {
     selectedDate,
     height,
     events,
-    triggerDialog,
     handleGotoDay,
     remoteEvents,
+    getRemoteEvents,
     triggerLoading,
     handleState,
     resources,
@@ -63,10 +54,10 @@ const Week = () => {
     fields,
     direction,
     locale,
+    hourFormat,
   } = useAppState();
 
-  const { weekStartOn, weekDays, startHour, endHour, step, cellRenderer } =
-    week!;
+  const { weekStartOn, weekDays, startHour, endHour, step, cellRenderer } = week!;
   const _weekStart = startOfWeek(selectedDate, { weekStartsOn: weekStartOn });
   const daysList = weekDays.map((d) => addDays(_weekStart, d));
   const weekStart = startOfDay(daysList[0]);
@@ -83,12 +74,24 @@ const Week = () => {
   const CELL_HEIGHT = calcCellHeight(height, hours.length);
   const MINUTE_HEIGHT = calcMinuteHeight(CELL_HEIGHT, step);
   const MULTI_SPACE = MULTI_DAY_EVENT_HEIGHT;
+  const hFormat = hourFormat === "12" ? "hh:mm a" : "HH:mm";
 
   const fetchEvents = useCallback(async () => {
     try {
       triggerLoading(true);
-      const query = `?start=${weekStart}&end=${weekEnd}`;
-      const events = await remoteEvents!(query);
+
+      const events = await (async () => {
+        // Remove `remoteEvents` in future release
+        if (remoteEvents) {
+          return await remoteEvents(`?start=${weekStart}&end=${weekEnd}`);
+        } else {
+          return await getRemoteEvents!({
+            start: weekStart,
+            end: weekEnd,
+            view: "week",
+          });
+        }
+      })();
       if (Array.isArray(events)) {
         handleState(events, "events");
       }
@@ -98,14 +101,15 @@ const Week = () => {
       triggerLoading(false);
     }
     // eslint-disable-next-line
-  }, [selectedDate]);
+  }, [selectedDate, remoteEvents, getRemoteEvents]);
 
   useEffect(() => {
-    if (remoteEvents instanceof Function) {
+    // Remove `remoteEvents` in future release
+    if ((remoteEvents || getRemoteEvents) instanceof Function) {
       fetchEvents();
     }
     // eslint-disable-next-line
-  }, [fetchEvents]);
+  }, [selectedDate, remoteEvents, getRemoteEvents]);
 
   const renderMultiDayEvents = (events: ProcessedEvent[], today: Date) => {
     const isFirstDayInWeek = isSameDay(weekStart, today);
@@ -121,20 +125,13 @@ const Week = () => {
     );
 
     const multiDays = allWeekMulti
-      .filter((e) =>
-        isBefore(e.start, weekStart)
-          ? isFirstDayInWeek
-          : isSameDay(e.start, today)
-      )
+      .filter((e) => (isBefore(e.start, weekStart) ? isFirstDayInWeek : isSameDay(e.start, today)))
       .sort((a, b) => b.end.getTime() - a.end.getTime());
     return multiDays.map((event, i) => {
       const hasPrev = isBefore(startOfDay(event.start), weekStart);
       const hasNext = isAfter(endOfDay(event.end), weekEnd);
       const eventLength =
-        differenceInDays(
-          hasNext ? weekEnd : event.end,
-          hasPrev ? weekStart : event.start
-        ) + 1;
+        differenceInDays(hasNext ? weekEnd : event.end, hasPrev ? weekStart : event.start) + 1;
       const prevNextEvents = events.filter((e) =>
         isFirstDayInWeek
           ? false
@@ -156,12 +153,7 @@ const Week = () => {
             width: `${100 * eventLength}%`,
           }}
         >
-          <EventItem
-            event={event}
-            hasPrev={hasPrev}
-            hasNext={hasNext}
-            multiday
-          />
+          <EventItem event={event} hasPrev={hasPrev} hasNext={hasNext} multiday />
         </div>
       );
     });
@@ -170,12 +162,7 @@ const Week = () => {
   const renderTable = (resource?: DefaultRecourse) => {
     let recousedEvents = events;
     if (resource) {
-      recousedEvents = getResourcedEvents(
-        events,
-        resource,
-        resourceFields,
-        fields
-      );
+      recousedEvents = getResourcedEvents(events, resource, resourceFields, fields);
     }
 
     const allWeekMulti = events.filter(
@@ -197,12 +184,10 @@ const Week = () => {
         {daysList.map((date, i) => (
           <span
             key={i}
-            className={`rs__cell rs__header ${
-              isToday(date) ? "rs__today_cell" : ""
-            }`}
+            className={`rs__cell rs__header ${isToday(date) ? "rs__today_cell" : ""}`}
             style={{ height: headerHeight }}
           >
-            <TodayTypo date={date} onClick={handleGotoDay} locale={locale}/>
+            <TodayTypo date={date} onClick={handleGotoDay} locale={locale} />
             {renderMultiDayEvents(recousedEvents, date)}
           </span>
         ))}
@@ -210,40 +195,23 @@ const Week = () => {
         {/* Time Cells */}
         {hours.map((h, i) => (
           <Fragment key={i}>
-            <span
-              style={{ height: CELL_HEIGHT }}
-              className="rs__cell rs__header rs__time"
-            >
-              <Typography variant="caption">
-                {format(h, "hh:mm a", { locale: locale })}
-              </Typography>
+            <span style={{ height: CELL_HEIGHT }} className="rs__cell rs__header rs__time">
+              <Typography variant="caption">{format(h, hFormat, { locale: locale })}</Typography>
             </span>
             {daysList.map((date, ii) => {
-              const start = new Date(
-                `${format(date, "yyyy/MM/dd")} ${format(h, "hh:mm a")}`
-              );
+              const start = new Date(`${format(date, "yyyy/MM/dd")} ${format(h, hFormat)}`);
               const end = new Date(
-                `${format(date, "yyyy/MM/dd")} ${format(
-                  addMinutes(h, step),
-                  "hh:mm a"
-                )}`
+                `${format(date, "yyyy/MM/dd")} ${format(addMinutes(h, step), hFormat)}`
               );
               const field = resourceFields.idField;
               return (
-                <span
-                  key={ii}
-                  className={`rs__cell ${
-                    isToday(date) ? "rs__today_cell" : ""
-                  }`}
-                >
+                <span key={ii} className={`rs__cell ${isToday(date) ? "rs__today_cell" : ""}`}>
                   {/* Events of each day - run once on the top hour column */}
                   {i === 0 && (
                     <TodayEvents
                       todayEvents={recousedEvents
                         .filter(
-                          (e) =>
-                            isSameDay(date, e.start) &&
-                            !differenceInDays(e.end, e.start)
+                          (e) => isSameDay(date, e.start) && !differenceInDays(e.end, e.start)
                         )
                         .sort((a, b) => a.end.getTime() - b.end.getTime())}
                       today={date}
@@ -253,28 +221,15 @@ const Week = () => {
                       direction={direction}
                     />
                   )}
-                  {cellRenderer ? (
-                    cellRenderer({
-                      day: date,
-                      start,
-                      end,
-                      height: CELL_HEIGHT,
-                      onClick: () =>
-                        triggerDialog(true, {
-                          start,
-                          end,
-                          [field]: resource ? resource[field] : null,
-                        }),
-                      [field]: resource ? resource[field] : null,
-                    })
-                  ) : (
-                    <Cell
-                      start={start}
-                      end={end}
-                      resourceKey={field}
-                      resourceVal={resource ? resource[field] : null}
-                    />
-                  )}
+                  <Cell
+                    start={start}
+                    end={end}
+                    day={date}
+                    height={CELL_HEIGHT}
+                    resourceKey={field}
+                    resourceVal={resource ? resource[field] : null}
+                    cellRenderer={cellRenderer}
+                  />
                 </span>
               );
             })}
@@ -283,11 +238,7 @@ const Week = () => {
       </TableGrid>
     );
   };
-  return resources.length ? (
-    <WithResources renderChildren={renderTable} />
-  ) : (
-    renderTable()
-  );
+  return resources.length ? <WithResources renderChildren={renderTable} /> : renderTable();
 };
 
 export { Week };
