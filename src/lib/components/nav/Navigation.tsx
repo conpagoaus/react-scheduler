@@ -51,9 +51,15 @@ const Navigation = () => {
     >
       <div data-testid="date-navigator">{Boolean(extraAction) ? extraAction : renderDateSelector()}</div>
       <div data-testid="view-navigator" style={{ display: "flex", alignItems: "center" }}>
+      <div
+          style={{
+            marginRight: 32,
+          }}
+        >
         <Button onClick={() => handleState(new Date(), "selectedDate")}>
           {translations.navigation.today}
         </Button>
+        </div>
         {Boolean(extraAction) && renderDateSelector()}
         {views.length > 1 &&
           (isDesktop ? (
